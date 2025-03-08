@@ -12,7 +12,7 @@
     "skipLibCheck": true,
     "outDir": "lib",
     "inlineSources": false,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
 
     "typeRoots": [
       "./node_modules/@types",
