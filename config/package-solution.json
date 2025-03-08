@@ -6,6 +6,20 @@
     "version": "0.0.1.0",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
+    "webApiPermissionRequests": [
+			{
+				"resource": "Microsoft Graph",
+				"scope": "Calendars.ReadWrite"
+			},
+			{
+				"resource": "Microsoft Graph",
+				"scope": "User.ReadBasic.All"
+			},
+			{
+				"resource": "Microsoft Graph",
+				"scope": "Mail.Send"
+			}
+		],
     "isDomainIsolated": false,
     "developer": {
       "name": "",
