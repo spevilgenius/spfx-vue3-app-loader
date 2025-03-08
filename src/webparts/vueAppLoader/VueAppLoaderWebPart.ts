@@ -118,75 +118,79 @@ export default class VueAppLoaderWebPart extends BaseClientSideWebPart<IVueAppLo
           throw error;
         }
       }
-    } else {
-      this.domElement.innerHTML = "NOTHING TO RENDER UNTIL A PROPER WIDGET IS SELECTED.";
     }
   }
 
   public async render(): Promise<void> {
-    this.domElement.innerHTML = `
-      <div id="SLWP_${this.properties.instanceId}">
-        <div id="loadingspinner" style="text-align: center; padding: 20px;">
-          <svg width="40" height="40" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="0" fill="#0078d4">
-              <animate attributeName="r" values="0; 8; 0" dur="1.5s" repeatCount="indefinite" begin="0" />
-              <animate attributeName="opacity" values="1; .5; 1" dur="1.5s" repeatCount="indefinite" begin="0" />
-            </circle>
-          </svg>
-          <p>Loading Component</p>
-        </div>
-        <div id="${this.appID}">
-      </div>
-    `;
+    if (this.properties.jsFile && this.properties.jsFile.length > 0) {
+      if (this.properties.widgetns && this.properties.widgetns.length > 0) {
+        this.domElement.innerHTML = `
+          <div id="SLWP_${this.properties.instanceId}">
+            <div id="loadingspinner" style="text-align: center; padding: 20px;">
+              <svg width="40" height="40" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="0" fill="#0078d4">
+                  <animate attributeName="r" values="0; 8; 0" dur="1.5s" repeatCount="indefinite" begin="0" />
+                  <animate attributeName="opacity" values="1; .5; 1" dur="1.5s" repeatCount="indefinite" begin="0" />
+                </circle>
+              </svg>
+              <p>Loading Component</p>
+            </div>
+            <div id="${this.appID}">
+          </div>
+        `;
 
-    if (this.loadingPromise) {
-      await this.loadingPromise
-        .then(() => {
-          return this.initializeApp();
-        })
-        .then(() => {
-          const loadingelement = document.getElementById("loadingspinner");
-          if (loadingelement) {
-            loadingelement.style.display = "none";
-          }
-        })
-        .catch((error) => {
-          console.error("FAILED TO LOAD RESOURCES AND INITIALIZE VUE APP:", error);
-        });
-    } else if (this.styleloaded && this.scriptloaded) {
-      await this.initializeApp()
-        .then(() => {
-          const loadingelement = document.getElementById("loadingspinner");
-          if (loadingelement) {
-            loadingelement.style.display = "none";
-          }
-        })
-        .catch((error) => {
-          console.error("RESOURCES LOADED BUT FAILED TO INITIALIZE VUE APP:", error);
-        });
+        if (this.loadingPromise) {
+          await this.loadingPromise
+            .then(() => {
+              return this.initializeApp();
+            })
+            .then(() => {
+              const loadingelement = document.getElementById("loadingspinner");
+              if (loadingelement) {
+                loadingelement.style.display = "none";
+              }
+            })
+            .catch((error) => {
+              console.error("FAILED TO LOAD RESOURCES AND INITIALIZE VUE APP:", error);
+            });
+        } else if (this.styleloaded && this.scriptloaded) {
+          await this.initializeApp()
+            .then(() => {
+              const loadingelement = document.getElementById("loadingspinner");
+              if (loadingelement) {
+                loadingelement.style.display = "none";
+              }
+            })
+            .catch((error) => {
+              console.error("RESOURCES LOADED BUT FAILED TO INITIALIZE VUE APP:", error);
+            });
+        } else {
+          // No promise exists and resources are not loaded so start loading again
+          this.loadingPromise = this.loadExternalResources();
+          await this.loadingPromise
+            .then(() => {
+              return this.initializeApp();
+            })
+            .then(() => {
+              const loadingelement = document.getElementById("loadingspinner");
+              if (loadingelement) {
+                loadingelement.style.display = "none";
+              }
+            })
+            .catch((error) => {
+              console.error("FAILED TO LOAD RESOURCES AND INITIALIZE VUE APP:", error);
+            });
+        }
+
+        if (this.displayMode === DisplayMode.Edit) {
+          this.properties.editmode = true;
+        }
+        if (this.displayMode === DisplayMode.Read) {
+          this.properties.editmode = false;
+        }
+      }
     } else {
-      // No promise exists and resources are not loaded so start loading again
-      this.loadingPromise = this.loadExternalResources();
-      await this.loadingPromise
-        .then(() => {
-          return this.initializeApp();
-        })
-        .then(() => {
-          const loadingelement = document.getElementById("loadingspinner");
-          if (loadingelement) {
-            loadingelement.style.display = "none";
-          }
-        })
-        .catch((error) => {
-          console.error("FAILED TO LOAD RESOURCES AND INITIALIZE VUE APP:", error);
-        });
-    }
-
-    if (this.displayMode === DisplayMode.Edit) {
-      this.properties.editmode = true;
-    }
-    if (this.displayMode === DisplayMode.Read) {
-      this.properties.editmode = false;
+      this.domElement.innerHTML = "NOTHING TO RENDER UNTIL A PROPER WIDGET IS SELECTED.";
     }
   }
 
@@ -309,11 +313,11 @@ export default class VueAppLoaderWebPart extends BaseClientSideWebPart<IVueAppLo
     // console.log('GET WIDGETS RESPONSE: ' + response)
     // Ensure the current user is a site admin. This allows the user to test development applications.
     this.properties.siteadmin = this.context.pageContext.legacyPageContext.isSiteAdmin;
-    // This expects the following fields to be in the document library: Title, Status, JSfile, CSSFile, WidgetNS, Details
+    // This expects the following fields to be in the list: Title, Status, JSfile, CSSFile, WidgetNS, Details
     // Some fields may not be needed depending on what you are loading but Title is required. WidgetNS, JSFile, and CSSFile are required to load vue widgets
     // These fields define the widget and the exported namespace [WidgetNS] from your vue app. Of course you can change this around depending on your needs
-    // We are using to array setups because the property pane dropdown does not support the extra columns
-    // so we load the objects into the dropdown properties and use the widgetinfos array to store the needed columns
+    // We are using two arrays because the property pane dropdown [IPropertyPaneDropdownOption] does not support the extra columns
+    // so we load the objects into the dropdown properties and use the widgetinfos array to store the other columns
     const j = response.data.d.results;
     for (let i = 0; i < j.length; i++) {
       const status = j[i].Status;
@@ -406,7 +410,7 @@ export default class VueAppLoaderWebPart extends BaseClientSideWebPart<IVueAppLo
             {
               groupFields: [
                 PropertyPaneTextField("title", {
-                  label: "Calendar Title",
+                  label: "Widget Title",
                   value: this.properties.title,
                 }),
                 PropertyPaneToggle("removePadding", {
@@ -419,11 +423,7 @@ export default class VueAppLoaderWebPart extends BaseClientSideWebPart<IVueAppLo
                   label: "Select Script Widget",
                   options: this.widgets,
                   selectedKey: this.properties.externalWidget,
-                }) /* ,
-                PropertyPaneTextField("widgetsettings", {
-                  label: "Widget Settings",
-                  value: this.properties.widgetsettings
-                }) */,
+                }),
               ],
             },
           ],

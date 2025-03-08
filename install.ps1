@@ -15,7 +15,7 @@ $AppName = "SPFX Vue App Loader"
 
 Connect-PnPOnline -Url $SiteURL -Interactive -Verbose
 
-$PackageFiles = Get-ChildItem -Path $FilesPath -Force -File "dlsvue-sp-script-widget.sppkg"
+$PackageFiles = Get-ChildItem -Path $FilesPath -Force -File "spfx-vue-3-app-loader.sppkg"
 
 ForEach ($File in $PackageFiles) {
   Write-Host "Uploading $($File.Directory)\$($File.Name)"
