@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "SPFX Vue App Loader",
+    "id": "02ae865c-e175-4f76-b168-d53e0a094c71",
+    "version": "0.0.1.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.20.0"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "SPFX Vue App Loader description"
+      },
+      "longDescription": {
+        "default": "SPFX Vue App Loader description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "SPFX Vue App Loader Feature",
+        "description": "The feature that activates elements of the spfx-vue-3-app-loader solution.",
+        "id": "38c1c82f-e247-4d5f-9029-170f689a59bf",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/spfx-vue-3-app-loader.sppkg"
+  }
+}

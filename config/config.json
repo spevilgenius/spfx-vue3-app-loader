@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "vue-app-loader-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/vueAppLoader/VueAppLoaderWebPart.js",
+          "manifest": "./src/webparts/vueAppLoader/VueAppLoaderWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "VueAppLoaderWebPartStrings": "lib/webparts/vueAppLoader/loc/{locale}.js"
+  }
+}
