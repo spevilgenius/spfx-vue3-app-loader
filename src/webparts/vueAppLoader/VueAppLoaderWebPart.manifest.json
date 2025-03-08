@@ -16,7 +16,7 @@
       "group": { "default": "Advanced" },
       "title": { "default": "VueAppLoader" },
       "description": { "default": "VueAppLoader description" },
-      "officeFabricIconFontName": "Page",
+      "officeFabricIconFontName": "VisualStudioIDELogo32",
       "properties": {
         "description": "VueAppLoader"
       }
